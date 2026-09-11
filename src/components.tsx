@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { NavLink, Navigate, Link, useNavigate } from 'react-router-dom';
 import { clearAuth, getStoredUser, isAuthenticated, logout } from './lib/auth';
 
