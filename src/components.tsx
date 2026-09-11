@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavLink, Navigate, Link, useNavigate } from 'react-router-dom';
-import { clearAuth, getStoredUser, isAuthenticated, logout } from './lib/auth';
+import {getStoredUser, isAuthenticated, logout } from './lib/auth';
 
 export function Logo() {
   return <Link to="/" className="logo"><span className="mark">H</span>Hilaros</Link>;

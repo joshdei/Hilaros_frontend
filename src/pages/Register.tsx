@@ -5,11 +5,93 @@ import { api, endpoints } from '../lib/api';
 import { saveAuth } from '../lib/auth';
 import { ErrorBox } from '../components';
 
-export default function Register(){
- const [form,setForm]=useState({church_name:'',name:'',email:'',phone:'',password:''}); const [error,setError]=useState(''); const [loading,setLoading]=useState(false); const navigate=useNavigate();
- const update=(k:keyof typeof form)=>(e:React.ChangeEvent<HTMLInputElement>)=>setForm({...form,[k]:e.target.value});
- async function submit(e:FormEvent){e.preventDefault();setError('');setLoading(true);try{const r:any=await api(endpoints.register,{method:'POST',body:JSON.stringify(form)});if(r.token||r.access_token){saveAuth(r.token||r.access_token,r.user);navigate('/dashboard')}else navigate('/login')}catch(err:any){setError(err.message)}finally{setLoading(false)}}
- return <AuthShell quote="One code on the wall replaced four different account numbers we used to announce every week."><div className="tabs"><Link to="/login" className="tab">Sign in</Link><div className="tab active">Register church</div></div><h1 className="title">Register your church</h1><p className="subtitle">Set up your account, then add giving categories next.</p>{error&&<ErrorBox message={error}/>}<form onSubmit={submit}><Field label="Church name"><input value={form.church_name} onChange={update('church_name')} placeholder="e.g. Grace Assembly Lagos" required/></Field><Field label="Your full name"><input value={form.name} onChange={update('name')} placeholder="e.g. Pastor John Adebayo" required/></Field><div className="field-row"><Field label="Email address"><input type="email" value={form.email} onChange={update('email')} placeholder="you@church.org" required/></Field><Field label="Phone number"><input value={form.phone} onChange={update('phone')} placeholder="080X XXX XXXX" required/></Field></div><Field label="Create password"><input type="password" value={form.password} onChange={update('password')} placeholder="At least 8 characters" minLength={8} required/></Field><button className="btn-primary" disabled={loading}>{loading?'Creating…':'Create account'}</button></form><p className="terms">By registering, you agree to Hilaros' Terms of Service and Privacy Policy.</p><p className="switch-line">Already have an account? <Link to="/login">Sign in</Link></p></AuthShell>;
+export default function Register() {
+  const [form, setForm] = useState({ church_name: '', name: '', email: '', phone: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const update = (k: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [k]: e.target.value });
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const r: any = await api(endpoints.register, { method: 'POST', body: JSON.stringify(form) });
+      if (r.token || r.access_token) {
+        saveAuth(r.token || r.access_token, r.user);
+        navigate('/dashboard');
+      } else {
+        navigate('/login');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AuthShell quote="One code on the wall replaced four different account numbers we used to announce every week.">
+      <div className="tabs">
+        <Link to="/login" className="tab">Sign in</Link>
+        <div className="tab active">Register church</div>
+      </div>
+      <h1 className="title">Register your church</h1>
+      <p className="subtitle">Set up your account, then add giving categories next.</p>
+      {error && <ErrorBox message={error} />}
+      <form onSubmit={submit}>
+        <Field label="Church name">
+          <input value={form.church_name} onChange={update('church_name')} placeholder="e.g. Grace Assembly Lagos" required />
+        </Field>
+        <Field label="Your full name">
+          <input value={form.name} onChange={update('name')} placeholder="e.g. Pastor John Adebayo" required />
+        </Field>
+        <div className="field-row">
+          <Field label="Email address">
+            <input type="email" value={form.email} onChange={update('email')} placeholder="you@church.org" required />
+          </Field>
+          <Field label="Phone number">
+            <input value={form.phone} onChange={update('phone')} placeholder="080X XXX XXXX" required />
+          </Field>
+        </div>
+        <Field label="Create password">
+          <input type="password" value={form.password} onChange={update('password')} placeholder="At least 8 characters" minLength={8} required />
+        </Field>
+        <button className="btn-primary" disabled={loading}>{loading ? 'Creating…' : 'Create account'}</button>
+      </form>
+      <p className="terms">By registering, you agree to Hilaros' Terms of Service and Privacy Policy.</p>
+      <p className="switch-line">Already have an account? <Link to="/login">Sign in</Link></p>
+    </AuthShell>
+  );
 }
-function Field({label,children}:{label:string;children:React.ReactNode}){return <div className="field"><label>{label}</label>{children}</div>}
-function AuthShell({quote,children}:{quote:string;children:React.ReactNode}){return <div className="shell"><div className="auth-panel"><img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80"/><div className="panel-content"><div className="logo"><span className="mark">H</span>Hilaros</div><div className="panel-quote"><div className="qmark">"</div><p>{quote}</p><div className="who">Early adopter pastor · Lagos, Nigeria</div></div></div></div><div className="form-side"><div className="form-box"><div className="mobile-logo"><span className="mark">H</span>Hilaros</div>{children}</div></div></div>}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return <div className="field"><label>{label}</label>{children}</div>
+}
+
+function AuthShell({ quote, children }: { quote: string; children: ReactNode }) {
+  return (
+    <div className="shell">
+      <div className="auth-panel">
+        <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80" />
+        <div className="panel-content">
+          <div className="logo"><span className="mark">H</span>Hilaros</div>
+          <div className="panel-quote">
+            <div className="qmark">"</div>
+            <p>{quote}</p>
+            <div className="who">Early adopter pastor · Lagos, Nigeria</div>
+          </div>
+        </div>
+      </div>
+      <div className="form-side">
+        <div className="form-box">
+          <div className="mobile-logo"><span className="mark">H</span>Hilaros</div>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
