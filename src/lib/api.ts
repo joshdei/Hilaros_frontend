@@ -8,7 +8,6 @@ export async function api<T = any>(path: string, options: ApiOptions = {}): Prom
 
   const response = await fetch(`${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, {
     ...request,
-    credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(request.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
@@ -44,19 +43,46 @@ export async function api<T = any>(path: string, options: ApiOptions = {}): Prom
 }
 
 export const endpoints = {
-  login: '/auth/login',
-  register: '/auth/register',
-  logout: '/auth/logout',
-  me: '/auth/me',
-  dashboard: '/dashboard',
-  categories: '/categories',
-  bankAccounts: '/bank-accounts',
-  bankCodes: '/bank-codes',
-  members: '/members',
-  transactions: '/transactions',
-  settings: '/church/profile',
+  // Public / auth
+  login: '/login',
+  register: '/register',
+  logout: '/logout',
+  me: '/me',
+
+  // Authenticated user (church) routes — all live under /user/*
+  dashboard: '/user/dashboard',
+  categories: '/user/categories',
+  bankAccounts: '/user/bank-accounts',
+  qrCode: '/user/qr-code',
+  members: '/user/members',
+  transactions: '/user/transactions',
+  settings: '/user/settings',
+
+  // Public giving flow
   give: (slug: string) => `/give/${encodeURIComponent(slug)}`,
   initializeGiving: (slug: string) => `/give/${encodeURIComponent(slug)}/initialize`,
-  transaction: (reference: string) => `/give/transaction/${encodeURIComponent(reference)}`,
+  // There's no standalone "check transaction" route — Paystack's redirect
+  // and the transaction-status check are the same endpoint.
+  transaction: (reference: string) => `/give/callback/${encodeURIComponent(reference)}`,
   receipt: (reference: string) => `/give/receipt/${encodeURIComponent(reference)}`,
+
+  // Admin routes — all live under /admin/*, require is_admin
+  admin: {
+    dashboard: '/admin/dashboard',
+    siteSettings: '/admin/site-settings',
+    users: '/admin/users',
+    userTransactions: (userId: number | string) => `/admin/users/${userId}/transactions`,
+    bankCodes: '/admin/bank-codes',
+    deactivateBankCode: (id: number | string) => `/admin/bank-codes/${id}/deactivate`,
+    reactivateBankCode: (id: number | string) => `/admin/bank-codes/${id}/reactivate`,
+    churches: '/admin/churches',
+    updateChurchStatus: (id: number | string) => `/admin/churches/${id}/status`,
+    paystackSettings: '/admin/paystack-settings',
+    paystackSubaccounts: '/admin/paystack-subaccounts',
+    updatePaystackSubaccount: (id: number | string) => `/admin/paystack-subaccounts/${id}`,
+    pendingApprovals: '/admin/pending-approvals',
+    approveChurch: (id: number | string) => `/admin/pending-approvals/${id}/approve`,
+    rejectChurch: (id: number | string) => `/admin/pending-approvals/${id}/reject`,
+    transactions: '/admin/transactions',
+  },
 };
