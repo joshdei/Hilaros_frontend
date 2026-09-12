@@ -6,10 +6,129 @@ import { saveAuth } from '../lib/auth';
 import { ErrorBox } from '../components';
 
 export default function Login() {
-  const [email,setEmail]=useState(''); const [password,setPassword]=useState(''); const [error,setError]=useState(''); const [loading,setLoading]=useState(false);
-  const navigate=useNavigate();
-  async function submit(e:FormEvent){e.preventDefault();setError('');setLoading(true);try{const r:any=await api(endpoints.login,{method:'POST',body:JSON.stringify({email,password}),auth:false}); saveAuth(r.token||r.access_token,r.user); navigate('/dashboard');}catch(err:any){setError(err.message)}finally{setLoading(false)}}
-  return <AuthShell quote="Our members stopped asking where the account number is. They just scan and give."><div className="tabs"><div className="tab active">Sign in</div><Link to="/signup" className="tab">Register church</Link></div><h1 className="title">Welcome back</h1><p className="subtitle">Sign in to manage your church's giving.</p>{error&&<ErrorBox message={error}/>}<form onSubmit={submit}><Field label="Email address"><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="pastor@yourchurch.org" required/></Field><Field label="Password"><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required/></Field><div className="row-between"><label><input type="checkbox"/> Remember me</label><a href="/password/forgot">Forgot password?</a></div><button className="btn-primary" disabled={loading}>{loading?'Signing in…':'Sign in'}</button></form><p className="switch-line">New to Hilaros? <Link to="/signup">Register your church</Link></p></AuthShell>;
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const r: any = await api(endpoints.login, {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+        auth: false,
+      });
+
+      // 👇 Keep this line for now so you can inspect the response in the console
+      console.log('LOGIN RESPONSE:', r);
+
+      // Handle flat AND nested response shapes
+      const token =
+        r?.token ||
+        r?.access_token ||
+        r?.data?.token ||
+        r?.data?.access_token;
+
+      const user =
+        r?.user ||
+        r?.data?.user;
+
+      if (!token) {
+        throw new Error(
+          'Login succeeded but no token was returned. Check the console for the response shape.'
+        );
+      }
+
+      saveAuth(token, user);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AuthShell quote="Our members stopped asking where the account number is. They just scan and give.">
+      <div className="tabs">
+        <div className="tab active">Sign in</div>
+        <Link to="/signup" className="tab">Register church</Link>
+      </div>
+      <h1 className="title">Welcome back</h1>
+      <p className="subtitle">Sign in to manage your church's giving.</p>
+      {error && <ErrorBox message={error} />}
+      <form onSubmit={submit}>
+        <Field label="Email address">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="pastor@yourchurch.org"
+            required
+          />
+        </Field>
+        <Field label="Password">
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+        </Field>
+        <div className="row-between">
+          <label><input type="checkbox" /> Remember me</label>
+          <a href="/password/forgot">Forgot password?</a>
+        </div>
+        <button className="btn-primary" disabled={loading}>
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+      <p className="switch-line">
+        New to Hilaros? <Link to="/signup">Register your church</Link>
+      </p>
+    </AuthShell>
+  );
 }
-function Field({label,children}:{label:string;children:React.ReactNode}){return <div className="field"><label>{label}</label>{children}</div>}
-function AuthShell({quote,children}:{quote:string;children:React.ReactNode}){return <div className="shell"><div className="auth-panel"><img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80"/><div className="panel-content"><div className="logo"><span className="mark">H</span>Hilaros</div><div className="panel-quote"><div className="qmark">"</div><p>{quote}</p><div className="who">Early adopter pastor · Lagos, Nigeria</div></div><div className="panel-stats"><div><b>1</b><span>QR code per church</span></div><div><b>&lt;60s</b><span>to give</span></div><div><b>0</b><span>funds held by Hilaros</span></div></div></div></div><div className="form-side"><div className="form-box"><div className="mobile-logo"><span className="mark">H</span>Hilaros</div>{children}</div></div></div>}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="field">
+      <label>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function AuthShell({ quote, children }: { quote: string; children: React.ReactNode }) {
+  return (
+    <div className="shell">
+      <div className="auth-panel">
+        <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1200&q=80" />
+        <div className="panel-content">
+          <div className="logo"><span className="mark">H</span>Hilaros</div>
+          <div className="panel-quote">
+            <div className="qmark">"</div>
+            <p>{quote}</p>
+            <div className="who">Early adopter pastor · Lagos, Nigeria</div>
+          </div>
+          <div className="panel-stats">
+            <div><b>1</b><span>QR code per church</span></div>
+            <div><b>&lt;60s</b><span>to give</span></div>
+            <div><b>0</b><span>funds held by Hilaros</span></div>
+          </div>
+        </div>
+      </div>
+      <div className="form-side">
+        <div className="form-box">
+          <div className="mobile-logo"><span className="mark">H</span>Hilaros</div>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
